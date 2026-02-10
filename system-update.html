@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обновление системы • Проверка безопасности</title>
+    <style>
+        /* СТИЛИ ДЛЯ КОРПОРАТИВНОГО ЭКРАНА */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: all 1s ease;
+            overflow-x: hidden;
+        }
+        
+        .screen {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        #corporateScreen {
+            opacity: 1;
+            transition: opacity 0.8s ease;
+            z-index: 100;
+        }
+        
+        #valentineScreen {
+            opacity: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .corporate-container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            border-left: 5px solid #0078d4;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: #0078d4;
+            border-radius: 8px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .company-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #0078d4;
+        }
+        
+        .status-bar {
+            background: #e6f2ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 25px 0;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .loader {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .loader-fill {
+            height: 100%;
+            background: #0078d4;
+            width: 0%;
+            animation: loading 8s linear forwards;
+        }
+        
+        @keyframes loading {
+            to { width: 100%; }
+        }
+        
+        .update-message {
+            color: #666;
+            line-height: 1.6;
+            margin: 20px 0;
+        }
+        
+        .timer {
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        /* СТИЛИ ДЛЯ ВАЛЕНТИНКИ (ИЗ ПРЕДЫДУЩЕГО КОДА) */
+        .valentine-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            border: 3px solid #ff69b4;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            color: #ff6b9d;
+            opacity: 0.6;
+            animation: float 4s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .valentine-title {
+            color: #ff4081;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .message {
+            font-size: 1.3em;
+            color: #555;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .question {
+            font-size: 1.8em;
+            color: #e91e63;
+            margin: 30px 0;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 18px 35px;
+            font-size: 1.3em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .yes-btn {
+            background: linear-gradient(to right, #ff4081, #ff79a6);
+            color: white;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .yes-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(255, 64, 129, 0.4);
+        }
+        
+        .no-btn {
+            background: linear-gradient(to right, #757575, #9e9e9e);
+            color: white;
+            position: relative;
+            min-width: 150px;
+        }
+        
+        .no-btn:hover {
+            transform: translateY(-3px);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .result {
+            font-size: 2em;
+            color: #ff4081;
+            margin-top: 30px;
+            animation: celebrate 1s ease;
+        }
+        
+        @keyframes celebrate {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .hearts-container {
+            font-size: 40px;
+            margin: 20px 0;
+            height: 50px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            color: #777;
+            font-style: italic;
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        @media (max-width: 500px) {
+            .valentine-container, .corporate-container {
+                padding: 25px;
+            }
+            
+            .valentine-title {
+                font-size: 2em;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ЭКРАН 1: КОРПОРАТИВНАЯ МАСКИРОВКА -->
+    <div class="screen" id="corporateScreen">
+        <div class="corporate-container">
+            <div class="header">
+                <div class="logo">S</div>
+                <div class="company-name">Secure Systems</div>
+            </div>
+            
+            <h2>🔒 Проверка системы безопасности</h2>
+            
+            <div class="status-bar" id="statusBar">
+                🔄 Инициализация проверки...
+            </div>
+            
+            <div class="update-message">
+                <p><strong>Статус:</strong> Выполняется сканирование на уязвимости</p>
+                <p><strong>Этап:</strong> <span id="currentStep">1</span> из 5 • Проверка сертификатов</p>
+                <p>Пожалуйста, ожидайте завершения процесса. Это займет несколько секунд.</p>
+            </div>
+            
+            <div class="loader">
+                <div class="loader-fill" id="loaderBar"></div>
+            </div>
+            
+            <div class="timer">
+                <div id="timer">Завершение через: <span id="countdown">7</span> сек</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ЭКРАН 2: ВАЛЕНТИНКА -->
+    <div class="screen" id="valentineScreen">
+        <div class="valentine-container" id="container">
+            <!-- Плавающие сердечки -->
+            <div class="heart" style="top:10%; left:10%;">💖</div>
+            <div class="heart" style="top:20%; right:15%; animation-delay: -1s;">💕</div>
+            <div class="heart" style="bottom:30%; left:15%; animation-delay: -2s;">💘</div>
+            <div class="heart" style="bottom:20%; right:10%; animation-delay: -3s;">💝</div>
+            
+            <h1 class="valentine-title">💖 Сюрприз! 💖</h1>
+            
+            <div class="message" id="valentineMessage">
+                Привет, Настюш!💫<br>
+                Это была не проверка безопасности...<br>
+                А проверка чувств! У меня к тебе важный вопрос...
+            </div>
+            
+            <div class="question" id="question">
+                Будешь ли ты моей валентинкой?🌹🌹🌹
+            </div>
+            
+            <div class="buttons" id="buttons">
+                <button class="yes-btn" id="yesBtn">ДА! 💕</button>
+                <button class="no-btn" id="noBtn">НЕТ!🖕🖕🖕</button>
+            </div>
+            
+            <div class="hearts-container" id="hearts"></div>
+            
+            <div class="result hidden" id="result">
+                УРААА! Ты сделала меня самым счастливым!❤️💋
+            </div>
+            
+            <div class="footer">
+               Для той,в чьих глазах я тону каждый раз,когда включаю телефон💫
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== ПЕРЕМЕННЫЕ И КОНФИГУРАЦИЯ ==========
+        const CONFIG = {
+            countdownTime: 7, // секунд до показа валентинки
+            steps: 5, // количество шагов в загрузке
+            messages: [
+                "Инициализация проверки...",
+                "Сканирование на уязвимости...",
+                "Проверка сертификатов безопасности...",
+                "Анализ системных журналов...",
+                "Финальная проверка целостности..."
+            ]
+        };
+
+        // ========== КОРПОРАТИВНАЯ МАСКИРОВКА ==========
+        let countdown = CONFIG.countdownTime;
+        let currentStep = 0;
+        const countdownElement = document.getElementById('countdown');
+        const statusBar = document.getElementById('statusBar');
+        const currentStepElement = document.getElementById('currentStep');
+        const corporateScreen = document.getElementById('corporateScreen');
+        const valentineScreen = document.getElementById('valentineScreen');
+        const body = document.body;
+
+        // Таймер обратного отсчета
+        const timer = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+            
+            // Меняем сообщения каждую секунду
+            if (currentStep < CONFIG.steps) {
+                statusBar.innerHTML = `🔄 ${CONFIG.messages[currentStep]}`;
+                currentStepElement.textContent = currentStep + 1;
+                currentStep++;
+            }
+            
+            if (countdown <= 0) {
+                clearInterval(timer);
+                revealValentine();
+            }
+        }, 1000);
+
+        // ========== ПОКАЗ ВАЛЕНТИНКИ ==========
+        function revealValentine() {
+            // Плавное исчезновение корпоративного экрана
+            corporateScreen.style.opacity = '0';
+            
+            setTimeout(() => {
+                corporateScreen.style.display = 'none';
+                corporateScreen.style.pointerEvents = 'none';
+                
+                // Показываем валентинку
+                valentineScreen.style.opacity = '1';
+                valentineScreen.style.pointerEvents = 'auto';
+                
+                // Меняем фон
+                body.style.background = 'linear-gradient(135deg, #ffafcc 0%, #ffc8dd 50%, #cdb4db 100%)';
+                
+                // Запускаем анимацию сердечек
+                createHeartsAnimation();
+                
+                // Инициализируем кнопки валентинки
+                initValentineButtons();
+            }, 800);
+        }
+
+        // ========== АНИМАЦИЯ СЕРДЕЧЕК ПРИ ЗАГРУЗКЕ ==========
+        function createHeartsAnimation() {
+            const heartsContainer = document.getElementById('hearts');
+            for(let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('span');
+                    heart.innerHTML = '💖';
+                    heart.style.display = 'inline-block';
+                    heart.style.fontSize = Math.random() * 20 + 30 + 'px';
+                    heart.style.margin = '0 8px';
+                    heart.style.animation = `celebrate ${Math.random() * 2 + 1}s ease`;
+                    heartsContainer.appendChild(heart);
+                    
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 2000);
+                }, i * 300);
+            }
+        }
+
+        // ========== ФУНКЦИОНАЛ ВАЛЕНТИНКИ ==========
+        function initValentineButtons() {
+            const yesBtn = document.getElementById('yesBtn');
+            const noBtn = document.getElementById('noBtn');
+            const container = document.getElementById('container');
+            
+            // Обработчик для кнопки "ДА"
+            yesBtn.addEventListener('click', function() {
+                // Скрываем вопрос и кнопки
+                document.getElementById('question').classList.add('hidden');
+                document.getElementById('buttons').classList.add('hidden');
+                document.getElementById('valentineMessage').classList.add('hidden');
+                
+                // Показываем результат
+                const result = document.getElementById('result');
+                result.classList.remove('hidden');
+                
+                // Запускаем праздничную анимацию
+                startCelebration();
+                
+                // Меняем текст кнопки "Нет" если она еще видна
+                if (!noBtn.classList.contains('hidden')) {
+                    noBtn.textContent = 'Я тоже согласна! 💖';
+                    noBtn.style.background = 'linear-gradient(to right, #ff4081, #ff79a6)';
+                }
+            });
+            
+            // Обработчик для кнопки "НЕТ" (убегающая)
+            noBtn.addEventListener('mouseover', function() {
+                moveNoButton();
+            });
+            
+            // Клик по "Нет" тоже ведет к согласию
+            noBtn.addEventListener('click', function() {
+                if (this.textContent.includes('Я тоже')) {
+                    yesBtn.click();
+                } else {
+                    this.textContent = 'Ладно, ДА! 💕';
+                    this.style.background = 'linear-gradient(to right, #ff4081, #ff79a6)';
+                    setTimeout(() => yesBtn.click(), 800);
+                }
+            });
+            
+            // Функция перемещения кнопки "Нет"
+            window.moveNoButton = function() {
+                const maxX = container.clientWidth - noBtn.clientWidth - 40;
+                const maxY = container.clientHeight - noBtn.clientHeight - 40;
+                
+                // Не даем кнопке убежать за экран на мобильных
+                const isMobile = window.innerWidth <= 500;
+                const padding = isMobile ? 10 : 40;
+                
+                const randomX = Math.floor(Math.random() * Math.max(0, maxX - padding)) + padding/2;
+                const randomY = Math.floor(Math.random() * Math.max(0, maxY - padding)) + padding/2;
+                
+                noBtn.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                noBtn.style.position = 'absolute';
+                noBtn.style.left = randomX + 'px';
+                noBtn.style.top = randomY + 'px';
+            };
+        }
+
+        // ========== ПРАЗДНИЧНАЯ АНИМАЦИЯ ==========
+        function startCelebration() {
+            const colors = ['#ff4081', '#ff79a6', '#ffb7c5', '#cdb4db', '#a2d2ff'];
+            
+            // 1. Конфетти
+            for(let i = 0; i < 200; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.top = '-20px';
+                    confetti.style.opacity = '0.8';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    // Анимация падения
+                    const animation = confetti.animate([
+                        { 
+                            transform: `translateY(0) rotate(0deg) translateX(0)`,
+                            opacity: 0.8 
+                        },
+                        { 
+                            transform: `translateY(${window.innerHeight + 20}px) 
+                                      rotate(${Math.random() * 720}deg)
+                                      translateX(${Math.random() * 100 - 50}px)`,
+                            opacity: 0 
+                        }
+                    ], {
+                        duration: Math.random() * 3000 + 2000,
+                        easing: 'cubic-bezier(0.215, 0.610, 0.355, 1)'
+                    });
+                    
+                    animation.onfinish = () => confetti.remove();
+                }, i * 20);
+            }
+            
+            // 2. Много сердечек
+            const heartsContainer = document.getElementById('hearts');
+            for(let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.innerHTML = ['💖', '💕', '💘', '💝', '💓'][Math.floor(Math.random() * 5)];
+                    heart.style.position = 'fixed';
+                    heart.style.fontSize = Math.random() * 30 + 20 + 'px';
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.top = '-50px';
+                    heart.style.zIndex = '999';
+                    heart.style.pointerEvents = 'none';
+                    
+                    document.body.appendChild(heart);
+                    
+                    // Анимация
+                    const anim = heart.animate([
+                        { transform: 'translateY(0) scale(1)', opacity: 1 },
+                        { transform: `translateY(${window.innerHeight + 100}px) scale(0.5)`, opacity: 0 }
+                    ], {
+                        duration: Math.random() * 4000 + 3000,
+                        easing: 'cubic-bezier(0.215, 0.610, 0.355, 1)'
+                    });
+                    
+                    anim.onfinish = () => heart.remove();
+                }, i * 100);
+            }
+            
+            // 3. Меняем фон на праздничный
+            body.style.background = 'linear-gradient(135deg, #ffafcc 0%, #ffc8dd 30%, #ffb7c5 70%, #a2d2ff 100%)';
+            body.style.animation = 'rainbowBackground 5s infinite alternate';
+            
+            // Добавляем анимацию фона
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes rainbowBackground {
+                    0% { filter: hue-rotate(0deg); }
+                    100% { filter: hue-rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // ========== ЗАПУСК ПРИ ЗАГРУЗКЕ ==========
+        window.addEventListener('load', function() {
+            // Убедимся что загрузочная анимация идет
+            const loaderBar = document.getElementById('loaderBar');
+            loaderBar.style.animation = `loading ${CONFIG.countdownTime}s linear forwards`;
+            
+            // Добавляем случайные системные сообщения
+            setInterval(() => {
+                if (corporateScreen.style.opacity !== '0') {
+                    const randomMessages = [
+                        "Проверка файловой системы...",
+                        "Сканирование процессов...",
+                        "Верификация пользователя...",
+                        "Оптимизация памяти...",
+                        "Проверка сетевых подключений..."
+                    ];
+                    const randomMsg = randomMessages[Math.floor(Math.random() * randomMessages.length)];
+                    statusBar.innerHTML = `🔄 ${randomMsg}`;
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
